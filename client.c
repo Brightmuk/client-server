@@ -41,51 +41,43 @@ int main(int argc, char *argv[])
         serv_addr.sin_port = htons(portno);
         if(connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) <0)
             error("Error connecting");
-        printf("Client: ");
-        while(1)
-        {
-            bzero(buffer, 256);
-            fgets(buffer, 255, stdin);
-            n = write(sockfd, buffer, strlen(buffer));
-            if(n < 0)
-                error("Error writing to socket");
-            bzero(buffer, 256);
-            n = read(sockfd, buffer, 255);
-            if(n < 0)
-                error("Error reading from socket");
-            printf("Server: %s\n", buffer);
+        int num1, num2, answer, choice;
 
-            int i = strncmp("Bye", buffer, 3);
-            int j = strncmp("Send file", buffer, 9);
+        S: 
+        bzero(buffer, 256);
+        n = read(sockfd, buffer, 256);
+        if(n < 0)
+            error("ERROR reading from socket");
+        printf("Server - %s\n", buffer);
+        scanf("%d" ,&num1);
+        write(sockfd, &num1, sizeof(int));
 
-            if(j==0){
-               printf("File transfer....");
-               FILE * f;
-               int words = 0;
-               char c;
+        bzero(buffer, 256);
+        n = read(sockfd, buffer, 256);
+        if(n < 0)
+            error("ERROR reading from socket");
+        printf("Server - %s\n", buffer);
+        scanf("%d" ,&num2);
+        write(sockfd, &num2, sizeof(int));
 
-               f = fopen("glad.txt", "r");
-               while((c = getc(f)) != EOF)
-               {
-                   fscanf(f, "%s", buffer);
-                   if(isspace(c) || c=='\t')
-                    words++;
-               }
-               write(sockfd, &words, sizeof(int));
-               rewind(f);
-               char ch;
-               while(ch != EOF)
-               {
-                   fscanf(f, "%s", buffer);
-                   write(sockfd, buffer, 255);
-                   ch = fgetc(f);
-               }
-               printf("The file has been sent successfully");
-            }
+        bzero(buffer, 256);
+        n = read(sockfd, buffer, 256);
+        if(n < 0)
+            error("ERROR reading from socket");
+        printf("Server - %s\n", buffer);
+        scanf("%d" ,&choice);
+        write(sockfd, &choice, sizeof(int));
 
-            if(i==0)
-                break;
-        }
+        if(choice == 5)
+           goto Q;
+
+        read(sockfd, &answer, sizeof(int));
+        printf("Server - THe answer is: %d\n", answer);
+        if(choice != 5)
+            goto S;
+
+        Q: 
+        printf("You have quit the program");
         close(sockfd);
         return 0;
 }

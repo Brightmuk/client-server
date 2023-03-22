@@ -47,44 +47,50 @@ int main(int argc, char *argv[])
 
     if(newsockfd < 0)
     error("Error on accept");
-    printf("Server: ");
-    while(1)
+    int num1, num2, answer, choice;
+
+    S: 
+    n = write(newsockfd, "Enter Number 1:", strlen("Enter Number 1 "));
+    if(n < 0) error("ERROR writing to socket");
+    read(newsockfd, &num1, sizeof(int));
+    printf("Client - Number 1 is: %d\n", num1);
+
+    n = write(newsockfd, "Enter Number 2:", strlen("Enter Number 2"));
+    if(n < 0) error("ERROR writing to socket");
+    read(newsockfd, &num2, sizeof(int));
+    printf("Client - Number 2 is: %d\n", num2);
+
+    n = write(newsockfd, "Enter your choice: \n1.Addition\n2.Subtraction\n3.Multiplication\n4.Dividion\n5Exit\n",strlen("Enter your choice: \n1.Addition\n2.Subtraction\n3.Multiplication\n4.Dividion\n5Exit\n"));
+    if(n < 0) error("ERROR writing to socket");
+    read(newsockfd, &choice, sizeof(int));
+    printf("CLient - choice is: %d\n", choice);
+
+    switch (choice)
     {
-        bzero(buffer, 255);
-        n = read(newsockfd, buffer, 255);
-        if(n < 0)
-            error("Error on reading");
-        printf("Client: %s\n", buffer);
-        bzero(buffer, 255);
-        fgets(buffer, 255, stdin);
-
-        n = write(newsockfd, buffer, strlen(buffer));
-        if(n < 0)
-            error("Error on writing");
-
-        int i = strncmp("Bye", buffer, 3);
-        int j = strncmp("Send file", buffer, 12);
-
-        if(j == 0){
-            printf("File transfer....");
-            FILE *fp;
-            int ch = 0;
-            fp = fopen("received.txt", "a");
-            int words;
-
-            read(newsockfd, &words, sizeof(int));
-
-            while(ch !=words)
-            {
-                read(newsockfd, buffer, 255);
-                fprintf(fp, "%s", buffer);
-                ch++;
-            }
-            printf("The file has been received!");
-        }
-        if(i == 0)
-            break;
+    case 1:
+        answer = num1 + num2;
+        break;
+    case 2:
+        answer = num1 - num2;
+        break;
+    case 3:
+        answer = num1 * num2;
+        break;
+    case 4:
+        answer = num1 / num2;
+        break;
+    case 5:
+       goto Q;
+        break;    
+    default:
+        break;
     }
+
+    write(newsockfd, &answer, sizeof(int));
+    if(choice != 5)
+        goto S;
+
+    Q: 
     close(newsockfd);
     close(sockfd);
     return 0;
